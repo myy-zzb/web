@@ -5,7 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
-
+import NewbookRouter from './modules/newbook'
 /**
  * constantRoutes
  * a base page that does not have permission requirements
@@ -28,16 +28,16 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/', // 根路径
-    component: Layout, // 使用 Layout 保持统一的布局
-    redirect: '/map', // 默认重定向到 /map
+    path: '/',
+    component: Layout,
+    redirect: '/home',
     children: [
       {
-        path: 'map', // 子路径 /map
-        component: () => import('@/views/birds/map'), // 根路径页面
-        name: 'BirdMap',
+        path: 'home',
+        component: () => import('@/views/books/home'),
+        name: 'HomePage',
         meta: {
-          title: '鸟类地图',
+          title: '首页',
           icon: 'tree-table',
           noCache: true
         }
@@ -51,36 +51,6 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-  {
-    path: '/bird-query',
-    component: Layout,
-    children: [
-      {
-        path: '', // 子路径为空
-        component: () => import('@/views/birds/query'),
-        name: 'BirdQuery',
-        meta: {
-          title: '鸟类识别',
-          icon: 'eye-open'
-        }
-      }
-    ]
-  },
-  {
-    path: '/bird-list',
-    component: Layout,
-    children: [
-      {
-        path: '', // 子路径为空
-        component: () => import('@/views/birds/list'),
-        name: 'BirdList',
-        meta: {
-          title: '鸟类百科',
-          icon: 'search'
-        }
-      }
-    ]
-  },
   // {
   //   path: '/error',
   //   component: Layout,
@@ -118,6 +88,7 @@ export const asyncRoutes = [
   //   ]
   // },
   // 404 page must be placed at the end !!!
+  NewbookRouter,
   { path: '*', redirect: '/404', hidden: true }
 ]
 

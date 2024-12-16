@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on">
 
       <div class="title-container">
-        <h3 class="title">欢迎登录鸟类百科系统</h3>
+        <h3 class="title">欢迎登录图书管理系统</h3>
       </div>
 
       <el-form-item prop="username">
