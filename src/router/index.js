@@ -6,6 +6,9 @@ Vue.use(Router)
 /* Layout */
 import Layout from '@/layout'
 import NewbookRouter from './modules/newbook'
+import BookBorrowRouter from './modules/bookBorrow'
+import BorrowRecordRouter from './modules/borrowRecord'
+import NowBorrowRouter from './modules/nowBorrow'
 /**
  * constantRoutes
  * a base page that does not have permission requirements
@@ -89,6 +92,9 @@ export const asyncRoutes = [
   // },
   // 404 page must be placed at the end !!!
   NewbookRouter,
+  BookBorrowRouter,
+  BorrowRecordRouter,
+  NowBorrowRouter,
   { path: '*', redirect: '/404', hidden: true }
 ]
 
