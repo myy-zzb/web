@@ -53,6 +53,13 @@
         class="login-button"
         @click.native.prevent="handleLogin"
       >登录</el-button>
+      <br><br>
+      <el-button
+        :loading="loading"
+        type="primary"
+        class="login-button"
+        @click.native.prevent="handleRegister"
+      >注册</el-button>
     </el-form>
   </div>
 </template>
@@ -93,6 +100,10 @@ export default {
     }
   },
   methods: {
+    handleRegister() {
+      console.log('注册')
+      this.$router.push({ path: '/register' })
+    },
     checkCapslock(e) {
       const { key } = e
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')

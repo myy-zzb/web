@@ -9,6 +9,7 @@ import NewbookRouter from './modules/newbook'
 import BookBorrowRouter from './modules/bookBorrow'
 import BorrowRecordRouter from './modules/borrowRecord'
 import NowBorrowRouter from './modules/nowBorrow'
+
 /**
  * constantRoutes
  * a base page that does not have permission requirements
@@ -46,6 +47,11 @@ export const constantRoutes = [
         }
       }
     ]
+  },
+  {
+    path: '/register',
+    hidden: true,
+    component: () => import('@/views/login/register')
   }
 ]
 
@@ -107,7 +113,6 @@ const createRouter = () =>
 
 const router = createRouter()
 
-// Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
