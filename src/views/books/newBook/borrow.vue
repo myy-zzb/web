@@ -207,6 +207,7 @@ export default {
 
     // 确认借阅
     confirmBorrow() {
+      this.borrowForm.bookId = this.selectedBook.id
       // 这里添加借阅API调用
       const url = 'http://localhost:8696/librarymasts/BorrowRecordController/addBorrowRecord'
       fetch(url, {
