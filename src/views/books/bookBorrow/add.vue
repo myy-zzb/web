@@ -109,7 +109,7 @@ export default {
         publisher: '',
         publishDate: '',
         quantity: 1,
-        category: '',
+        available_quantity: 1,
         description: '',
         image: null
       },
@@ -126,22 +126,11 @@ export default {
           }
         ],
         author: [{ required: true, message: '请输入作者', trigger: 'blur' }],
-        isbn: [
-          { required: true, message: '请输入ISBN', trigger: 'blur' },
-          {
-            pattern: /^[0-9-]{10,13}$/,
-            message: 'ISBN格式不正确',
-            trigger: 'blur'
-          }
-        ],
         publisher: [
           { required: true, message: '请输入出版社', trigger: 'blur' }
         ],
         publishDate: [
           { required: true, message: '请选择出版日期', trigger: 'change' }
-        ],
-        category: [
-          { required: true, message: '请选择图书分类', trigger: 'change' }
         ]
       }
     }
@@ -176,6 +165,7 @@ export default {
 
     // 提交表单
     submitForm() {
+      this.bookForm.available_quantity = this.bookForm.quantity
       this.$refs.bookForm.validate((valid) => {
         if (valid) {
           // 这里添加提交API的调用

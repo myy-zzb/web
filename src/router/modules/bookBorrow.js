@@ -23,9 +23,10 @@ const BookBorrowRouter = {
       meta: { title: '借阅图书' }
     },
     {
-      path: 'edit',
+      path: 'edit:title',
       component: () => import('@/views/books/bookBorrow/edit'),
       name: 'editBook',
+      hidden: true,
       meta: { title: '编辑图书', roles: ['admin'] }
     },
     {
