@@ -6,7 +6,7 @@ const NowBorrowRouter = {
   redirect: '/nowBorrow/list',
   name: 'nowBorrow',
   meta: {
-    title: '借阅记录',
+    title: '当前借阅',
     icon: 'book'
   },
   children: [
