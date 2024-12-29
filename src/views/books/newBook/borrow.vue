@@ -146,6 +146,10 @@ export default {
         'pageNum': 1,
         'pageSize': 5
       },
+      borrowForm: {
+        'userId': this.$store.state.user.id,
+        'bookId': 1,
+        'borrowDate': Date.now() },
       borrowDays: 30 // 默认借阅30天
     }
   },
@@ -171,13 +175,11 @@ export default {
           return response.json()
         })
         .then(data => {
-          console.log(data) // 处理获取到的数据
           this.bookList = data.data.pageInfo.pageData
           this.total = data.data.pageInfo.totalPage
           this.bookList.forEach(item => {
             item.image = 'data:image/png;base64,' + item.image
           })
-          console.log(this.total)
         })
         .catch(error => {
           console.error('Error:', error)
@@ -206,12 +208,40 @@ export default {
     // 确认借阅
     confirmBorrow() {
       // 这里添加借阅API调用
+      const url = 'http://localhost:8696/librarymasts/BorrowRecordController/addBorrowRecord'
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.borrowForm)
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok')
+          }
+          return response.json()
+        })
+        .then(data => {
+        })
       this.$message({
         type: 'success',
         message: '借阅成功！'
       })
       this.dialogVisible = false
       this.getBookList() // 刷新图书列表
+
+      const urll = 'http://localhost:8696/librarymasts/book/updatebook'
+      fetch(urll, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          'title': this.selectedBook.title,
+          'availableQuantity': this.selectedBook.available_quantity - 1
+        })
+      })
     },
 
     // 分页处理

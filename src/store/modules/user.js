@@ -7,6 +7,7 @@ const state = {
   name: '',
   avatar: '',
   introduction: '',
+  id: null, // 新增字段
   roles: []
 }
 
@@ -25,6 +26,9 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_USERID: (state, userid) => {
+    state.id = userid
   }
 }
 
@@ -60,6 +64,7 @@ const actions = {
       // 定义本地用户数据
       const mockUserData = {
         admin: {
+          id: 1,
           roles: ['admin'],
           name: 'Super Admin',
           avatar: require('/images/admin.jpg'),
@@ -78,12 +83,14 @@ const actions = {
           introduction: 'I am a test user'
         },
         student: {
+          id: 2,
           roles: ['editor'], // 新增 student 角色
           name: 'Editor',
           avatar: require('/images/student.jpg'),
           introduction: 'I am a student'
         },
         student1: {
+          id: 3,
           roles: ['editor'], // 新增 student 角色
           name: 'Editor',
           avatar: require('/images/student1.jpg'),
@@ -97,7 +104,10 @@ const actions = {
       if (!userInfo) {
         reject('Verification failed, please Login again.')
       } else {
-        const { roles, name, avatar, introduction } = userInfo
+        const { id, roles, name, avatar, introduction } = userInfo
+
+        console.log('User Info:', userInfo)
+        console.log('ID:', id)
 
         // 检查 roles 是否为非空数组
         if (!roles || roles.length <= 0) {
@@ -109,6 +119,7 @@ const actions = {
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         commit('SET_INTRODUCTION', introduction)
+        commit('SET_USERID', id)
         resolve(userInfo)
       }
     })
