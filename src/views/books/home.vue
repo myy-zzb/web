@@ -1,238 +1,385 @@
 <template>
-  <div id="app" class="map-container">
-    <div ref="mapContainer" class="map" />
+  <div class="dashboard-container">
+    <!-- 顶部数据卡片 -->
+    <el-row :gutter="20">
+      <el-col :span="6">
+        <el-card shadow="hover">
+          <div class="data-item">
+            <svg-icon icon-class="book" class="card-icon" />
+            <div class="data-content">
+              <div class="data-title">总藏书量</div>
+              <div class="data-number">{{ totalBooks }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover">
+          <div class="data-item">
+            <svg-icon icon-class="peoples" class="card-icon" />
+            <div class="data-content">
+              <div class="data-title">借阅人数</div>
+              <div class="data-number">{{ borrowUsers }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover">
+          <div class="data-item">
+            <svg-icon icon-class="message" class="card-icon" />
+            <div class="data-content">
+              <div class="data-title">今日借出</div>
+              <div class="data-number">{{ todayBorrow }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card shadow="hover">
+          <div class="data-item">
+            <svg-icon icon-class="list" class="card-icon" />
+            <div class="data-content">
+              <div class="data-title">待归还</div>
+              <div class="data-number">{{ pendingReturn }}</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
 
-    <!-- 弹窗 -->
-    <el-dialog
-      :visible.sync="dialogVisible"
-      width="50%"
-      :before-close="handleClose"
-    >
-      <span slot="title">{{ selectedBird.name }}</span>
-      <div class="bird-details-dialog">
-        <img :src="selectedBird.image" alt="bird" class="bird-image">
-        <p><strong>栖息地:</strong> {{ selectedBird.habitat }}</p>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">关闭</el-button>
-      </span>
-    </el-dialog>
+    <!-- 快捷操作区 -->
+    <el-row :gutter="20" class="operation-area">
+      <el-col :span="8">
+        <el-card shadow="hover">
+          <div slot="header">
+            <span>快捷操作</span>
+          </div>
+          <div class="operation-buttons">
+            <el-button style="display: block; margin-left: 10px;" type="primary" @click="$router.push('/newBook/borrow')">
+              <svg-icon icon-class="search" /> 图书查询
+            </el-button>
+            <el-button style="display: block;" type="success" @click="$router.push('/newBook/borrow')">
+              <svg-icon icon-class="list" /> 借阅图书
+            </el-button>
+            <el-button style="display: block;" type="warning" @click="$router.push('/nowBorrow/returnBook')">
+              <svg-icon icon-class="list" /> 归还图书
+            </el-button>
+          </div>
+        </el-card>
+      </el-col>
 
-    <div v-if="birdData.length" class="bird-info">
-      <h2>鸟类栖息地</h2>
-      <div v-for="(bird, index) in birdData" :key="index" class="bird-card">
-        <img
-          :src="bird.image"
-          alt="bird"
-          class="bird-image"
-          @click="showBirdInfo(bird)"
-        >
-        <div class="bird-details">
-          <h3>{{ bird.name }}</h3>
-          <p><strong>栖息地:</strong> {{ bird.habitat }}</p>
-        </div>
-      </div>
-    </div>
+      <!-- 最近借阅记录 -->
+      <el-col :span="16">
+        <el-card shadow="hover">
+          <div slot="header">
+            <span>最近借阅记录</span>
+          </div>
+          <el-table :data="recentBorrows" style="width: 100%">
+            <el-table-column prop="bookName" label="书名" width="180" />
+            <el-table-column prop="borrower" label="借阅人" width="120" />
+            <el-table-column prop="borrowTime" label="借阅时间" width="180" />
+            <el-table-column prop="returnTime" label="应还时间" width="180" />
+            <el-table-column prop="status" label="状态">
+              <template slot-scope="scope">
+                <el-tag :type="scope.row.status === '已归还' ? 'success' : 'warning'">
+                  {{ scope.row.status }}
+                </el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 新增图书推荐和借阅排行 -->
+    <el-row :gutter="20" class="book-stats">
+      <!-- 每日推荐 -->
+      <el-col :span="12">
+        <el-card shadow="hover" class="daily-recommend">
+          <div slot="header">
+            <span>每日图书推荐</span>
+          </div>
+          <el-carousel height="240px" indicator-position="outside">
+            <el-carousel-item v-for="book in recommendBooks" :key="book.id">
+              <div class="book-recommend">
+                <div class="book-cover">
+                  <img :src="book.cover" alt="book cover">
+                </div>
+                <div class="book-info">
+                  <h3>{{ book.name }}</h3>
+                  <p class="author">作者：{{ book.author }}</p>
+                  <p class="description">{{ book.description }}</p>
+                  <el-rate
+                    v-model="book.rating"
+                    disabled
+                    show-score
+                    text-color="#ff9900"
+                    score-template="{value}"
+                  />
+                </div>
+              </div>
+            </el-carousel-item>
+          </el-carousel>
+        </el-card>
+      </el-col>
+
+      <!-- 借阅排行 -->
+      <el-col :span="12">
+        <el-card shadow="hover" class="borrow-rank">
+          <div slot="header">
+            <span>借阅排行榜</span>
+            <el-radio-group v-model="rankType" size="small" style="float: right">
+              <el-radio-button label="week">周榜</el-radio-button>
+              <el-radio-button label="month">月榜</el-radio-button>
+            </el-radio-group>
+          </div>
+          <div class="rank-list">
+            <div v-for="(book, index) in borrowRanks" :key="index" class="rank-item">
+              <span class="rank-number" :class="{'top-three': index < 3}">{{ index + 1 }}</span>
+              <span class="book-name">{{ book.name }}</span>
+              <span class="borrow-count">{{ book.count }}次</span>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script>
-import * as echarts from 'echarts'
-import chinaMap from 'echarts/map/json/china.json'
-
 export default {
+  name: 'BooksDashboard',
   data() {
     return {
-      birdData: [
+      totalBooks: 2000,
+      borrowUsers: 150,
+      todayBorrow: 25,
+      pendingReturn: 85,
+      recentBorrows: [
         {
-          name: '白鹭',
-          habitat: '湿地、湖泊',
-          coordinates: [116.40, 39.90], // 经度和纬度
-          image: require('/images/白鹭.png') // 鸟类图片路径
-        },
-        {
-          name: '丹顶鹤',
-          habitat: '湿地',
-          coordinates: [120.52, 31.45],
-          image: require('/images/丹顶鹤.png')
+          bookName: '深入理解计算机系统',
+          borrower: '张三',
+          borrowTime: '2024-03-15',
+          returnTime: '2024-04-15',
+          status: '借阅中'
         }
+        // 更多数据...
       ],
-      dialogVisible: false, // 控制弹窗显示与否
-      selectedBird: {} // 当前选中的鸟类信息
-    }
-  },
-  mounted() {
-    this.initMap()
-  },
-  methods: {
-    initMap() {
-    // 注册中国地图
-      echarts.registerMap('china', chinaMap)
-      const myChart = echarts.init(this.$refs.mapContainer)
-
-      const option = {
-        geo: {
-          map: 'china',
-          roam: true,
-          label: {
-            emphasis: {
-              show: false
-            }
-          }
+      recommendBook: {
+        cover: 'https://example.com/book-cover.jpg', // 替换为实际的图片地址
+        name: '人类简史',
+        author: '尤瓦尔·赫拉利',
+        description: '这是一部讲述人类如何从史前发展至今的精彩著作，融合了历史、科学、哲学等多个领域的知识。',
+        rating: 4.5
+      },
+      rankType: 'week',
+      borrowRanks: [
+        { name: '深入理解计算机系统', count: 156 },
+        { name: '算法导论', count: 142 },
+        { name: '设计模式', count: 98 },
+        { name: 'JavaScript高级程序设计', count: 87 },
+        { name: '数据结构与算法分析', count: 76 }
+      ],
+      recommendBooks: [
+        {
+          id: 1,
+          cover: 'https://img3m7.ddimg.cn/48/0/29326047-1_w_6.jpg',
+          name: '活着',
+          author: '余华',
+          description: '《活着》是作家余华的代表作，讲述了农村人福贵悲惨的人生遭遇。福贵先是个阔少爷，后来一赌倾家荡产，沦为佃农。他经历了战争、土改、人民公社、"文革"等历史大事件，身边的亲人一个接一个地死去，最后只剩下他和一头老牛相依为命。',
+          rating: 4.9
         },
-        series: [
-          {
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            data: this.birdData.map(bird => ({
-              name: bird.name,
-              value: [...bird.coordinates, 1], // 经纬度和权重值
-              symbol: `image://${bird.image}`, // 使用图片作为标记
-              symbolSize: 40,
-              label: {
-                formatter: bird.name,
-                position: 'top',
-                show: true
-              }
-            })),
-            tooltip: {
-              trigger: 'item',
-              formatter: (params) => {
-                const bird = this.birdData.find(b => b.name === params.name)
-                return `${params.name}<br>栖息地: ${bird.habitat}`
-              }
-            }
-          }
-        ]
-      }
-
-      myChart.setOption(option)
-
-      // 添加点击事件监听器
-      myChart.on('click', (params) => {
-        if (params.componentType === 'series') {
-          const bird = this.birdData.find(b => b.name === params.name)
-          if (bird) {
-            this.showBirdInfo(bird)
-          }
+        {
+          id: 2,
+          cover: 'https://img3m6.ddimg.cn/96/25/23579654-1_w_3.jpg',
+          name: '三体（全集）',
+          author: '刘慈欣',
+          description: '三体是中国科幻文学的代表作，讲述了地球文明与三体文明的信息交流、生死搏杀及两个文明在宇宙中的兴衰历程。其对人性的深刻洞察和对宇宙文明的大胆想象，让人叹为观止。',
+          rating: 4.8
+        },
+        {
+          id: 3,
+          cover: 'https://img3m4.ddimg.cn/13/30/29261084-1_w_3.jpg',
+          name: '明朝那些事儿（全集）',
+          author: '当年明月',
+          description: '《明朝那些事儿》讲述从1344年到1644年，明朝三百年间的历史。作品以史料为基础，以年代和具体人物为主线，运用小说的笔法，对明朝三百年的历史进行了全景展示。',
+          rating: 4.7
+        },
+        {
+          id: 4,
+          cover: 'https://img3m7.ddimg.cn/1/32/29283297-1_w_3.jpg',
+          name: '人类简史',
+          author: '尤瓦尔·赫拉利',
+          description: '这是一部讲述人类如何从史前发展至今的精彩著作，融合了历史、科学、哲学等多个领域的知识。作者用宏大的视角，重新解读人类发展史，让人类重新认识自己。',
+          rating: 4.6
+        },
+        {
+          id: 5,
+          cover: 'https://img3m0.ddimg.cn/75/9/25238590-1_w_3.jpg',
+          name: '围城',
+          author: '钱钟书',
+          description: '《围城》是钱钟书所著的长篇小说，描写了青年方鸿渐从美国留学回来后的故事。小说借婚姻生活描写出人生的荒诞，在幽默中展现出对生活的思考。',
+          rating: 4.8
         }
-      })
-    },
-
-    // 点击鸟类图片时显示信息
-    showBirdInfo(bird) {
-      this.selectedBird = bird
-      this.dialogVisible = true // 显示弹窗
-    },
-
-    handleClose(done) {
-      this.dialogVisible = false // 关闭弹窗
+      ]
     }
   }
-
 }
 </script>
 
-<style scoped>
-/* 整体容器 */
-.map-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-  font-family: 'Arial', sans-serif;
-  background-color: #f4f4f9;
+<style lang="scss" scoped>
+.dashboard-container {
   padding: 20px;
-}
 
-/* 地图容器 */
-.map {
-  width: 80%;
-  height: 800px;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-}
+  .data-item {
+    display: flex;
+    align-items: center;
 
-/* 鸟类信息部分 */
-.bird-info {
-  width: 80%;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-}
+    .card-icon {
+      font-size: 48px;
+      padding: 10px;
+      color: #409EFF;
+    }
 
-.bird-info h2 {
-  text-align: center;
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 20px;
-}
+    .data-content {
+      margin-left: 15px;
 
-/* 鸟类卡片 */
-.bird-card {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fafafa;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-}
+      .data-title {
+        font-size: 14px;
+        color: #909399;
+      }
 
-.bird-card img.bird-image {
-  width: 80px;
-  height: 80px;
-  margin-right: 20px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-}
-
-.bird-card .bird-details {
-  flex: 1;
-}
-
-.bird-card .bird-details h3 {
-  font-size: 20px;
-  margin: 0;
-  color: #444;
-}
-
-.bird-card .bird-details p {
-  color: #666;
-  font-size: 16px;
-  margin: 5px 0;
-}
-
-/* 弹窗样式 */
-.bird-details-dialog {
-  display: flex;
-  align-items: center;
-}
-
-.bird-details-dialog img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  margin-right: 20px;
-}
-
-.dialog-footer {
-  text-align: center;
-}
-
-/* 响应式布局 */
-@media (max-width: 768px) {
-  .map {
-    width: 100%;
+      .data-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #303133;
+      }
+    }
   }
 
-  .bird-info {
-    width: 100%;
+  .operation-area {
+    margin-top: 20px;
+
+    .operation-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 15px;
+
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .book-stats {
+    margin-top: 20px;
+
+    .daily-recommend {
+      .el-carousel {
+        margin: -20px;
+
+        .el-carousel__container {
+          padding: 20px;
+        }
+
+        .book-recommend {
+          height: 100%;
+          display: flex;
+          gap: 20px;
+          padding: 0 20px;
+
+          .book-cover {
+            width: 140px;
+            height: 200px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            border-radius: 4px;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+
+          .book-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            h3 {
+              margin: 0 0 10px 0;
+              font-size: 20px;
+              color: #303133;
+            }
+
+            .author {
+              color: #666;
+              margin-bottom: 15px;
+              font-size: 14px;
+            }
+
+            .description {
+              font-size: 14px;
+              color: #666;
+              line-height: 1.6;
+              display: -webkit-box;
+              -webkit-line-clamp: 4;
+              line-clamp: 4;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+              margin-bottom: 15px;
+            }
+          }
+        }
+      }
+    }
+
+    .borrow-rank {
+      .rank-list {
+        .rank-item {
+          display: flex;
+          align-items: center;
+          padding: 10px 0;
+          border-bottom: 1px solid #eee;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .rank-number {
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-right: 12px;
+            font-size: 14px;
+
+            &.top-three {
+              color: #fff;
+              &:nth-child(1) { background: #f5222d; }
+              &:nth-child(2) { background: #fa8c16; }
+              &:nth-child(3) { background: #faad14; }
+            }
+          }
+
+          .book-name {
+            flex: 1;
+            font-size: 14px;
+          }
+
+          .borrow-count {
+            color: #999;
+            font-size: 14px;
+          }
+        }
+      }
+    }
   }
 }
 </style>

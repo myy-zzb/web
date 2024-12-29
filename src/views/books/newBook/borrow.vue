@@ -219,30 +219,50 @@ export default {
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error('Network response was not ok')
+            throw new Error('借阅失败')
           }
           return response.json()
         })
         .then(data => {
+          if (data.code === 200) {
+            // 借阅成功后更新库存
+            const updateUrl = 'http://localhost:8696/librarymasts/book/updatebook'
+            return fetch(updateUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                'title': this.selectedBook.title,
+                'availableQuantity': this.selectedBook.available_quantity - 1
+              })
+            })
+          } else {
+            throw new Error(data.message || '借阅失败')
+          }
         })
-      this.$message({
-        type: 'success',
-        message: '借阅成功！'
-      })
-      this.dialogVisible = false
-      this.getBookList() // 刷新图书列表
-
-      const urll = 'http://localhost:8696/librarymasts/book/updatebook'
-      fetch(urll, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          'title': this.selectedBook.title,
-          'availableQuantity': this.selectedBook.available_quantity - 1
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('更新库存失败')
+          }
+          return response.json()
         })
-      })
+        .then(data => {
+          if (data.code === 200) {
+            this.$message({
+              type: 'success',
+              message: '借阅成功！'
+            })
+            this.dialogVisible = false
+            // 所有API调用完成后再获取图书列表
+            return this.getBookList()
+          } else {
+            throw new Error(data.message || '更新库存失败')
+          }
+        })
+        .catch(error => {
+          this.$message.error(error.message)
+        })
     },
 
     // 分页处理

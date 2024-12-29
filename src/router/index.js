@@ -9,7 +9,7 @@ import NewbookRouter from './modules/newbook'
 import BookBorrowRouter from './modules/bookBorrow'
 import BorrowRecordRouter from './modules/borrowRecord'
 import NowBorrowRouter from './modules/nowBorrow'
-
+import BookReadRouter from './modules/bookRead'
 /**
  * constantRoutes
  * a base page that does not have permission requirements
@@ -101,6 +101,7 @@ export const asyncRoutes = [
   BookBorrowRouter,
   BorrowRecordRouter,
   NowBorrowRouter,
+  BookReadRouter,
   { path: '*', redirect: '/404', hidden: true }
 ]
 
