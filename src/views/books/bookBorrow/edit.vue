@@ -215,11 +215,10 @@ export default {
       this.$refs.bookForm.validate((valid) => {
         if (valid) {
           const submitData = {
-            ...this.bookForm,
-            update_time: this.bookForm.publishDate
+            ...this.bookForm
           }
 
-          const url = 'http://localhost:8696/librarymasts/book/updatebook'
+          const url = 'http://localhost:8696/librarymasts/book/update'
           fetch(url, {
             method: 'POST',
             headers: {

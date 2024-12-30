@@ -197,12 +197,30 @@ export default {
         type: 'warning'
       }).then(() => {
         // 这里添加删除API调用
-        console.log('删除图书:', row)
-        this.$message({
-          type: 'success',
-          message: '删除成功！'
+        console.log(row.title)
+        const url = 'http://localhost:8696/librarymasts/book/deletebook'
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: row.title
         })
-        this.getBookList() // 刷新列表
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('删除失败')
+            }
+            console.log('删除图书:', row)
+            this.$message({
+              type: 'success',
+              message: '删除成功！'
+            })
+            this.getBookList() // 删除成功后刷新列表
+          })
+          .catch(error => {
+            console.error('Error:', error)
+            this.$message.error('删除失败')
+          })
       }).catch(() => {
         this.$message({
           type: 'info',

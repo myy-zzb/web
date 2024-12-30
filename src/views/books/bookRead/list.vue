@@ -63,7 +63,7 @@
       <el-pagination
         :current-page="currentPage"
         :page-size="pageSize"
-        :total="total"
+        :total="filteredTotal"
         layout="total, prev, pager, next, jumper"
         @current-change="handlePageChange"
       />
@@ -80,91 +80,175 @@ export default {
       categoryFilter: '',
       currentPage: 1,
       pageSize: 12,
-      total: 18,
+      total: 24,
       books: [
         {
           id: 1,
           title: '三体',
           author: '刘慈欣',
           category: 'fiction',
-          coverUrl: 'https://img3.doubanio.com/view/subject/l/public/s2768378.jpg'
+          coverUrl: require('@/assets/images/三体.png')
         },
         {
           id: 2,
           title: '活法',
           author: '稻盛和夫',
           category: 'business',
-          coverUrl: 'https://img2.doubanio.com/view/subject/l/public/s27290937.jpg'
+          coverUrl: require('@/assets/images/活法.png')
         },
         {
           id: 3,
           title: '人类简史',
           author: '尤瓦尔·赫拉利',
           category: 'social',
-          coverUrl: 'https://img9.doubanio.com/view/subject/l/public/s27814883.jpg'
+          coverUrl: require('@/assets/images/人类简史.png')
         },
         {
           id: 4,
           title: '时间简史',
           author: '史蒂芬·霍金',
           category: 'technology',
-          coverUrl: 'https://img3.doubanio.com/view/subject/l/public/s1914861.jpg'
+          coverUrl: require('@/assets/images/时间简史.png')
         },
         {
           id: 5,
           title: '百年孤独',
           author: '加西亚·马尔克斯',
           category: 'fiction',
-          coverUrl: 'https://img3.doubanio.com/view/subject/l/public/s6384944.jpg'
+          coverUrl: require('@/assets/images/百年孤独.png')
         },
         {
           id: 6,
           title: '原则',
           author: '瑞·达利欧',
           category: 'business',
-          coverUrl: 'https://img9.doubanio.com/view/subject/l/public/s29643861.jpg'
+          coverUrl: require('@/assets/images/原则.png')
         },
         {
           id: 7,
           title: '未来简史',
           author: '尤瓦尔·赫拉利',
           category: 'social',
-          coverUrl: 'https://img3.doubanio.com/view/subject/l/public/s29287103.jpg'
+          coverUrl: require('@/assets/images/未来简史.png')
         },
         {
           id: 8,
           title: '浪潮之巅',
           author: '吴军',
           category: 'technology',
-          coverUrl: 'https://img9.doubanio.com/view/subject/l/public/s27932441.jpg'
+          coverUrl: require('@/assets/images/浪潮之巅.png')
         },
         {
           id: 9,
           title: '解忧杂货店',
           author: '东野圭吾',
           category: 'fiction',
-          coverUrl: 'https://img3.doubanio.com/view/subject/l/public/s27264181.jpg'
+          coverUrl: require('@/assets/images/解忧杂货店.png')
         },
         {
           id: 10,
           title: '定位',
           author: '艾·里斯',
           category: 'business',
-          coverUrl: 'https://img1.doubanio.com/view/subject/l/public/s1029455.jpg'
+          coverUrl: require('@/assets/images/定位.png')
         },
         {
           id: 11,
           title: '枪炮、病菌与钢铁',
           author: '贾雷德·戴蒙德',
           category: 'social',
-          coverUrl: 'https://img1.doubanio.com/view/subject/l/public/s1738643.jpg'
+          coverUrl: require('@/assets/images/枪炮、病菌与钢铁.png')
         },
         {
           id: 12,
           title: '编程珠玑',
           author: '乔恩·本特利',
           category: 'technology',
-          coverUrl: 'https://img3.doubanio.com/view/subject/l/public/s4687321.jpg'
+          coverUrl: require('@/assets/images/编程珠玑.png')
+        },
+        {
+          id: 13,
+          title: '镜花缘',
+          author: '李汝珍',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/镜花缘.png')
+        },
+        {
+          id: 14,
+          title: '老人与海',
+          author: '海明威',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/老人与海.png')
+        },
+        {
+          id: 15,
+          title: '了不起的盖茨比',
+          author: '菲茨杰拉德',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/了不起的盖茨比.png')
+        },
+        {
+          id: 16,
+          title: '骆驼祥子',
+          author: '老舍',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/骆驼祥子.png')
+        },
+        {
+          id: 17,
+          title: '呐喊',
+          author: '鲁迅',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/呐喊.png')
+        },
+        {
+          id: 18,
+          title: '平凡的世界',
+          author: '路遥',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/平凡的世界.png')
+        },
+        {
+          id: 19,
+          title: '蛙',
+          author: '莫言',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/蛙.png')
+        },
+        {
+          id: 20,
+          title: '边城',
+          author: '沈从文',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/边城.png')
+        },
+        {
+          id: 21,
+          title: '追风筝的人',
+          author: '卡勒德·胡赛尼',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/追风筝的人.png')
+        },
+        {
+          id: 22,
+          title: '哈姆雷特',
+          author: '莎士比亚',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/哈姆雷特.png')
+        },
+        {
+          id: 23,
+          title: '共产党宣言',
+          author: '马克思 恩格斯',
+          category: 'social',
+          coverUrl: require('@/assets/images/共产党宣言.png')
+        },
+        {
+          id: 24,
+          title: '简爱',
+          author: '夏洛蒂·勃朗特',
+          category: 'fiction',
+          coverUrl: require('@/assets/images/简爱.png')
         }
       ],
       categories: [
@@ -177,7 +261,8 @@ export default {
   },
   computed: {
     filteredBooks() {
-      return this.books.filter(book => {
+      // 先进行过滤
+      const filtered = this.books.filter(book => {
         const matchesSearch = this.searchQuery
           ? book.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
             book.author.toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -187,6 +272,24 @@ export default {
           : true
         return matchesSearch && matchesCategory
       })
+
+      // 然后进行分页
+      const start = (this.currentPage - 1) * this.pageSize
+      const end = start + this.pageSize
+      return filtered.slice(start, end)
+    },
+    // 添加一个计算总数的属性
+    filteredTotal() {
+      return this.books.filter(book => {
+        const matchesSearch = this.searchQuery
+          ? book.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            book.author.toLowerCase().includes(this.searchQuery.toLowerCase())
+          : true
+        const matchesCategory = this.categoryFilter
+          ? book.category === this.categoryFilter
+          : true
+        return matchesSearch && matchesCategory
+      }).length
     }
   },
   created() {
@@ -209,8 +312,8 @@ export default {
       this.fetchBooks()
     },
     async fetchBooks() {
-      // 模拟分页逻辑
-      this.total = this.books.length
+      // 使用过滤后的总数
+      this.total = this.filteredTotal
     }
   }
 }
