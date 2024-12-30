@@ -85,14 +85,14 @@ const actions = {
         student: {
           id: 2,
           roles: ['editor'], // 新增 student 角色
-          name: 'Editor',
+          name: 'student',
           avatar: require('/images/student.jpg'),
           introduction: 'I am a student'
         },
         student1: {
           id: 3,
           roles: ['editor'], // 新增 student 角色
-          name: 'Editor',
+          name: 'student1',
           avatar: require('/images/student1.jpg'),
           introduction: 'I am another student'
         }

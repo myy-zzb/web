@@ -10,12 +10,12 @@ const NewbookRouter = {
     icon: 'book'
   },
   children: [
-    {
-      path: 'search',
-      component: () => import('@/views/books/newBook/search'),
-      name: 'searchBook',
-      meta: { title: '查询图书' }
-    },
+    // {
+    //   path: 'search',
+    //   component: () => import('@/views/books/newBook/search'),
+    //   name: 'searchBook',
+    //   meta: { title: '查询图书' }
+    // },
     {
       path: 'borrow',
       component: () => import('@/views/books/newBook/borrow'),

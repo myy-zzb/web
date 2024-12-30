@@ -10,12 +10,12 @@ const BorrowRecordRouter = {
     icon: 'book'
   },
   children: [
-    {
-      path: 'add',
-      component: () => import('@/views/books/borrowRecord/add'),
-      name: 'addRecord',
-      meta: { title: '新增借阅记录' }
-    },
+    // {
+    //   path: 'add',
+    //   component: () => import('@/views/books/borrowRecord/add'),
+    //   name: 'addRecord',
+    //   meta: { title: '新增借阅记录' }
+    // },
     {
       path: 'search',
       component: () => import('@/views/books/borrowRecord/search'),

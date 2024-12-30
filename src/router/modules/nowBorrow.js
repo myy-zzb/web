@@ -16,12 +16,12 @@ const NowBorrowRouter = {
       name: 'returnBook',
       meta: { title: '归还图书' }
     },
-    {
-      path: 'search',
-      component: () => import('@/views/books/nowBorrow/search'),
-      name: 'searchBook',
-      meta: { title: '查询图书' }
-    },
+    // {
+    //   path: 'search',
+    //   component: () => import('@/views/books/nowBorrow/search'),
+    //   name: 'searchBook',
+    //   meta: { title: '查询图书' }
+    // },
     {
       path: 'check',
       component: () => import('@/views/books/nowBorrow/check'),

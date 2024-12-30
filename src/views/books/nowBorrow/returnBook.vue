@@ -1,74 +1,85 @@
 <template>
-  <div class="book-borrow-container">
-    <!-- 搜索区域 -->
-    <div class="search-section">
-      <div class="search-wrapper">
-        <el-input
-          v-model="searchQuery"
-          placeholder="请输入图书名称或作者"
-          class="search-input"
-          prefix-icon="el-icon-search"
-          @keyup.enter.native="handleSearch"
-        >
-          <el-button slot="append" type="primary" @click="handleSearch">
-            搜索
-          </el-button>
-        </el-input>
-      </div>
-    </div>
+  <div class="borrow-record-container">
+    <!-- 搜索条件区域 -->
+    <el-card class="search-area">
+      <el-form :inline="true" :model="searchForm" class="search-form">
+        <el-form-item label="图书名称">
+          <el-input
+            v-model="searchForm.bookName"
+            placeholder="请输入图书名称"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="借阅时间">
+          <el-date-picker
+            v-model="searchForm.dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="yyyy-MM-dd"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+          <el-button icon="el-icon-refresh" @click="resetSearch">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <!-- 图书列表 -->
-    <el-card class="book-list-card" shadow="hover">
+    <!-- 借阅记录表格 -->
+    <el-card class="record-table">
+      <div slot="header" class="table-header">
+        <span>借阅记录列表</span>
+        <el-button
+          type="text"
+          icon="el-icon-download"
+          @click="exportRecords"
+        >
+          导出记录
+        </el-button>
+      </div>
       <el-table
         v-loading="loading"
-        :data="bookList"
+        :data="records"
         border
         style="width: 100%"
-        class="book-table"
-        :header-cell-style="{ background: '#f5f7fa', color: '#606266' }"
       >
-        <el-table-column prop="title" label="图书名称" width="200">
+        <el-table-column
+          type="index"
+          label="序号"
+          width="80"
+          align="center"
+          :index="indexMethod"
+        />
+        <el-table-column prop="book_title" label="图书名称" min-width="150" />
+        <el-table-column prop="user_name" label="借阅人" width="120" />
+        <el-table-column prop="borrow_date" label="借阅时间" width="180">
           <template slot-scope="scope">
-            <div class="book-title">
-              <span class="title-text">{{ scope.row.title }}</span>
-            </div>
+            {{ formatDate(scope.row.borrow_date) }}
           </template>
         </el-table-column>
-        <el-table-column prop="author" label="作者" width="150" />
-        <el-table-column prop="publisher" label="出版社" width="150" />
-        <el-table-column prop="isbn" label="ISBN" width="150" />
-        <el-table-column prop="quantity" label="总数" width="120" />
-        <el-table-column prop="update_time" label="出版日期" width="200" />
-        <el-table-column prop="available_quantity" label="库存" width="120">
+        <el-table-column prop="return_date" label="应还时间" width="180">
           <template slot-scope="scope">
-            <el-tag :type="scope.row.available_quantity > 0 ? 'success' : 'danger'">
-              {{ scope.row.available_quantity }}
+            {{ formatDate(scope.row.return_date) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="day" label="借阅天数" width="180" />
+        <el-table-column prop="status" label="状态" width="100">
+          <template slot-scope="scope">
+            <el-tag :type="getStatusType(scope.row.status)">
+              {{ getStatusText(scope.row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="image" label="封面" width="120">
-          <template slot-scope="scope">
-            <el-image
-              style="width: 80px; height: 120px;"
-              :src="scope.row.image"
-              fit="cover"
-              :preview-src-list="[scope.row.image]"
-            >
-              <div slot="error" class="image-slot">
-                <i class="el-icon-picture-outline" />
-              </div>
-            </el-image>
-          </template>
-        </el-table-column>
-        <el-table-column prop="description" label="简介" width="300" />
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" width="140" fixed="right">
           <template slot-scope="scope">
             <el-button
+              type="success"
               size="mini"
-              type="primary"
-              :disabled="scope.row.remainingCount <= 0"
-              class="borrow-button"
-              @click="handleBorrow(scope.row)"
+              icon="el-icon-check"
+              :disabled="scope.row.status !== 'borrowed'"
+              @click="handleReturn(scope.row)"
             >
               归还
             </el-button>
@@ -79,86 +90,77 @@
       <!-- 分页 -->
       <div class="pagination-container">
         <el-pagination
-          background
-          :current-page="queryForm.pageNum"
-          :page-sizes="[5,10, 20, 30]"
-          :page-size="queryForm.pageSize"
+          :current-page="page.current"
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size="page.size"
+          :total="page.total"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="total*queryForm.pageSize"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
       </div>
     </el-card>
 
-    <!-- 借阅确认对话框 -->
+    <!-- 归还确认弹窗 -->
     <el-dialog
-      title="借阅确认"
-      :visible.sync="dialogVisible"
+      title="归还确认"
+      :visible.sync="returnDialogVisible"
       width="400px"
       center
-      custom-class="borrow-dialog"
     >
-      <div class="borrow-dialog-content">
-        <div class="book-info">
-          <i class="el-icon-reading book-icon" />
-          <h3>{{ selectedBook.title }}</h3>
-        </div>
-        <div class="borrow-details">
-          <div class="borrow-period">
-            <p>
-              <i class="el-icon-time" /> 借阅期限：
-              <el-input-number
-                v-model="borrowDays"
-                :min="1"
-                :max="90"
-                size="small"
-                @change="updateReturnDate"
-              />
-              天
-            </p>
-          </div>
-          <p><i class="el-icon-date" /> 应还日期：{{ returnDate }}</p>
+      <div class="return-dialog-content">
+        <p>确认归还{{ currentBook.book_title }}？</p>
+        <div class="return-info">
+          <p><i class="el-icon-date" /> 借阅日期：{{ formatDate(currentBook.borrow_date) }}</p>
+          <p><i class="el-icon-time" /> 应还日期：{{ formatDate(currentBook.return_date) }}</p>
+          <p><i class="el-icon-info" /> 借阅天数：{{ currentBook.day }} 天</p>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="confirmBorrow">确认借阅</el-button>
+        <el-button @click="returnDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="confirmReturn">确认归还</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import XLSX from 'xlsx'
+
 export default {
-  name: 'BookBorrow',
+  name: 'BorrowRecordSearch',
   data() {
     return {
-      searchQuery: '',
       loading: false,
-      bookList: [],
-      total: 0,
-      dialogVisible: false,
-      selectedBook: {},
-      returnDate: '',
-      queryForm: {
-        'keyWords': '',
+      searchForm: {
+        'keyWords': this.$store.state.user.name,
         'pageNum': 1,
-        'pageSize': 5
+        'pageSize': 10
       },
-      borrowForm: {
-        'userId': this.$store.state.user.id,
-        'bookId': 1,
-        'borrowDate': Date.now() },
-      borrowDays: 30 // 默认借阅30天
+      page: {
+        current: 1,
+        size: 10,
+        total: 0
+      },
+      records: [],
+      Allrecords: [],
+      returnDialogVisible: false,
+      currentBook: {}
     }
   },
   created() {
-    this.getBookList()
+    this.getRecords()
   },
   methods: {
-    // 获取图书列表
-    getBookList() {
+    formatDate(date) {
+      if (!date) return '-'
+      const d = new Date(date)
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    },
+    getRecords() {
       this.loading = true
       const url = 'http://localhost:8696/librarymasts/BorrowRecordController/findRecordById'
       fetch(url, {
@@ -166,20 +168,38 @@ export default {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(this.queryForm)
+        body: JSON.stringify(this.searchForm)
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error('Network response was not ok')
+            throw new Error('获取数据失败')
           }
           return response.json()
         })
         .then(data => {
-          this.bookList = data.data.pageInfo.pageData
-          this.total = data.data.pageInfo.totalPage
-          this.bookList.forEach(item => {
-            item.image = 'data:image/png;base64,' + item.image
+          // 只保留未归还的书本（借阅中或已逾期）
+          this.records = data.data.pageInfo.pageData.filter(record =>
+            record.status === 'borrowed' || record.status === 'overdue'
+          )
+
+          this.records.forEach(record => {
+            const returnDate = new Date(record.borrow_date)
+            returnDate.setDate(returnDate.getDate() + record.day)
+            record.return_date = this.formatDate(returnDate)
+            record.borrow_date = this.formatDate(record.borrow_date)
+            // 检查是否逾期
+            const today = new Date()
+            const returnDate1 = new Date(record.return_date)
+            if (!record.actual_return_date && today > returnDate1) {
+              record.status = 'overdue'
+            }
+            if (record.actual_return_date) {
+              record.actual_return_date = this.formatDate(record.actual_return_date)
+            }
           })
+
+          this.Allrecords = this.records
+          this.page.total = Math.ceil(this.records.length / this.page.size)
         })
         .catch(error => {
           console.error('Error:', error)
@@ -189,201 +209,228 @@ export default {
           this.loading = false
         })
     },
-
-    // 搜索处理
     handleSearch() {
-      this.queryForm.pageNum = 1
-      this.queryForm.keyWords = this.searchQuery
-      this.getBookList()
-    },
+      this.loading = true
+      // 从现有records中筛选
+      const filteredRecords = this.Allrecords.filter(record => {
+        // 匹配图书名称
+        if (this.searchForm.bookName &&
+            !record.book_title.toLowerCase().includes(this.searchForm.bookName.toLowerCase())) {
+          return false
+        }
 
-    // 借阅按钮点击处理
-    handleBorrow(book) {
-      this.selectedBook = book
-      this.dialogVisible = true
-      this.borrowDays = 30 // 重置为默认30天
-      this.updateReturnDate() // 计算初始归还日期
-    },
+        // 匹配借阅状态
+        if (this.searchForm.status && record.status !== this.searchForm.status) {
+          return false
+        }
 
-    // 确认借阅
-    confirmBorrow() {
-      // 这里添加借阅API调用
-      const url = 'http://localhost:8696/librarymasts/BorrowRecordController/addBorrowRecord'
+        // 匹配日期范围
+        if (this.searchForm.dateRange && this.searchForm.dateRange.length === 2) {
+          const borrowDate = new Date(record.borrow_date)
+          const startDate = new Date(this.searchForm.dateRange[0])
+          const endDate = new Date(this.searchForm.dateRange[1])
+          if (borrowDate < startDate || borrowDate > endDate) {
+            return false
+          }
+        }
+
+        return true
+      })
+
+      // 重置序号从1开始
+      this.records = filteredRecords
+      this.page.current = 1 // 重置到第一页
+      this.loading = false
+    },
+    resetSearch() {
+      this.searchForm = {
+        'keyWords': '',
+        'pageNum': 1,
+        'pageSize': 10
+      }
+      this.getRecords()
+    },
+    handleSizeChange(val) {
+      this.page.size = val
+      this.handleSearch()
+    },
+    handleCurrentChange(val) {
+      this.page.current = val
+      this.handleSearch()
+    },
+    getStatusType(status) {
+      const types = {
+        borrowed: 'primary',
+        overdue: 'danger'
+      }
+      return types[status] || 'info'
+    },
+    getStatusText(status) {
+      const texts = {
+        borrowed: '借阅中',
+        overdue: '已逾期'
+      }
+      return texts[status] || status
+    },
+    handleReturn(row) {
+      this.currentBook = { ...row }
+      this.returnDialogVisible = true
+    },
+    confirmReturn() {
+      const url = 'http://localhost:8696/librarymasts/BorrowRecordController/updateBorrowRecord'
       fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(this.borrowForm)
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok')
-          }
-          return response.json()
-        })
-        .then(data => {
-        })
-      this.$message({
-        type: 'success',
-        message: '借阅成功！'
-      })
-      this.dialogVisible = false
-      this.getBookList() // 刷新图书列表
-
-      const urll = 'http://localhost:8696/librarymasts/book/updatebook'
-      fetch(urll, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
-          'title': this.selectedBook.title,
-          'availableQuantity': this.selectedBook.available_quantity - 1
+          'id': this.currentBook.id,
+          'returnDate': new Date(),
+          'status': 'returned'
         })
       })
+        .then(response => response.json())
+        .then(data => {
+          if (data.code === 200) {
+            this.$message.success('归还成功')
+            this.returnDialogVisible = false
+            this.getRecords() // 刷新列表
+          } else {
+            throw new Error(data.message || '归还失败')
+          }
+        })
+        .catch(error => {
+          this.$message.error(error.message)
+        })
     },
+    exportRecords() {
+      // 获取要导出的数据
+      const exportData = this.records.map(record => ({
+        '图书名称': record.book_title,
+        '借阅人': record.user_name,
+        '借阅时间': this.formatDate(record.borrow_date),
+        '应还时间': this.formatDate(record.return_date),
+        '借阅天数': record.day,
+        '实际归还时间': record.actual_return_date ? this.formatDate(record.actual_return_date) : '-',
+        '状态': this.getStatusText(record.status)
+      }))
 
-    // 分页处理
-    handleSizeChange(val) {
-      this.queryForm.pageSize = val
-      this.getBookList()
-    },
-    handleCurrentChange(val) {
-      this.queryForm.pageNum = val
-      this.getBookList()
-    },
+      // 创建工作簿和工作表
+      const workbook = XLSX.utils.book_new()
+      const worksheet = XLSX.utils.json_to_sheet(exportData)
 
-    // 更新归还日期
-    updateReturnDate() {
-      const date = new Date()
-      date.setDate(date.getDate() + this.borrowDays)
-      this.returnDate = date.toLocaleDateString()
+      // 设置列宽
+      const colWidths = [
+        { wch: 30 }, // 图书名称
+        { wch: 15 }, // 借阅人
+        { wch: 15 }, // 借阅时间
+        { wch: 15 }, // 应还时间
+        { wch: 10 }, // 借阅天数
+        { wch: 15 }, // 实际归还时间
+        { wch: 10 } // 状态
+      ]
+      worksheet['!cols'] = colWidths
+
+      // 将工作表添加到工作簿
+      XLSX.utils.book_append_sheet(workbook, worksheet, '借阅记录')
+
+      // 生成文件并下载
+      const date = new Date().toLocaleDateString().replace(/\//g, '')
+      XLSX.writeFile(workbook, `借阅记录_${date}.xlsx`)
+
+      this.$message.success('导出成功')
+    },
+    indexMethod(index) {
+      // 因为是前端分页，所以直接使用当前数组的索引加1即可
+      return index + 1
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.book-borrow-container {
+.borrow-record-container {
   padding: 20px;
   background-color: #f0f2f5;
   min-height: calc(100vh - 84px);
 
-  .search-section {
+  .search-area {
     margin-bottom: 20px;
+    border-radius: 8px;
 
-    .search-wrapper {
-      display: flex;
-      justify-content: center;
+    .el-form {
+      padding: 20px 20px 0;
 
-      .search-input {
-        width: 500px;
+      .el-form-item {
+        margin-bottom: 20px;
 
-        :deep(.el-input__inner) {
-          border-radius: 4px;
-          height: 40px;
-          line-height: 40px;
-        }
-
-        :deep(.el-input-group__append) {
-          background-color: #409EFF;
-          border-color: #409EFF;
-          color: white;
-          padding: 0 20px;
+        .el-input, .el-select, .el-date-picker {
+          width: 220px;
         }
       }
     }
   }
 
-  .book-list-card {
+  .record-table {
     border-radius: 8px;
 
-    .book-table {
-      margin-bottom: 20px;
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #ebeef5;
+    }
 
-      .book-title {
-        .title-text {
-          font-weight: 500;
-          color: #303133;
-          &:hover {
-            color: #409EFF;
-            cursor: pointer;
-          }
-        }
-      }
-
-      :deep(.el-button.borrow-button) {
-        padding: 7px 15px;
-        &.is-disabled {
-          color: #C0C4CC;
-          background-color: #F5F7FA;
-          border-color: #E4E7ED;
-        }
+    :deep(.el-table) {
+      .el-tag {
+        border-radius: 4px;
+        padding: 0 10px;
+        height: 24px;
+        line-height: 22px;
       }
     }
   }
 
   .pagination-container {
-    text-align: center;
-    margin-top: 30px;
-    padding: 10px 0;
+    margin-top: 20px;
+    padding: 10px 20px;
+    text-align: right;
+    background: #fff;
+    border-radius: 8px;
   }
 
-  .borrow-dialog {
-    .book-info {
-      text-align: center;
-      margin-bottom: 20px;
+  .return-dialog-content {
+    text-align: center;
+    padding: 30px 20px;
 
-      .book-icon {
-        font-size: 40px;
-        color: #409EFF;
-        margin-bottom: 10px;
-      }
-
-      h3 {
-        margin: 10px 0;
-        color: #303133;
-      }
+    p {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #303133;
     }
 
-    .borrow-details {
+    .return-info {
+      margin-top: 25px;
+      text-align: left;
       background-color: #f5f7fa;
-      padding: 15px;
-      border-radius: 4px;
+      padding: 20px;
+      border-radius: 8px;
 
       p {
-        margin: 10px 0;
+        font-size: 14px;
         color: #606266;
-
-        i {
-          margin-right: 8px;
-          color: #409EFF;
-        }
-      }
-
-      .borrow-period {
+        margin: 12px 0;
         display: flex;
         align-items: center;
 
-        .el-input-number {
-          width: 100px;
-          margin: 0 8px;
+        i {
+          color: #409EFF;
+          margin-right: 10px;
+          font-size: 16px;
         }
       }
     }
   }
-}
-
-// 图片加载失败时的样式
-.image-slot {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  background: #f5f7fa;
-  color: #909399;
-  font-size: 20px;
 }
 </style>

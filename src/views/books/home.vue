@@ -184,7 +184,7 @@ export default {
       recommendBooks: [
         {
           id: 1,
-          cover: 'https://img3m7.ddimg.cn/48/0/29326047-1_w_6.jpg',
+          cover: require('@/assets/images/活着.png'),
           name: '活着',
           author: '余华',
           description: '《活着》是作家余华的代表作，讲述了农村人福贵悲惨的人生遭遇。福贵先是个阔少爷，后来一赌倾家荡产，沦为佃农。他经历了战争、土改、人民公社、"文革"等历史大事件，身边的亲人一个接一个地死去，最后只剩下他和一头老牛相依为命。',
@@ -192,7 +192,7 @@ export default {
         },
         {
           id: 2,
-          cover: 'https://img3m6.ddimg.cn/96/25/23579654-1_w_3.jpg',
+          cover: require('@/assets/images/三体.png'),
           name: '三体（全集）',
           author: '刘慈欣',
           description: '三体是中国科幻文学的代表作，讲述了地球文明与三体文明的信息交流、生死搏杀及两个文明在宇宙中的兴衰历程。其对人性的深刻洞察和对宇宙文明的大胆想象，让人叹为观止。',
@@ -200,27 +200,11 @@ export default {
         },
         {
           id: 3,
-          cover: 'https://img3m4.ddimg.cn/13/30/29261084-1_w_3.jpg',
-          name: '明朝那些事儿（全集）',
-          author: '当年明月',
-          description: '《明朝那些事儿》讲述从1344年到1644年，明朝三百年间的历史。作品以史料为基础，以年代和具体人物为主线，运用小说的笔法，对明朝三百年的历史进行了全景展示。',
-          rating: 4.7
-        },
-        {
-          id: 4,
-          cover: 'https://img3m7.ddimg.cn/1/32/29283297-1_w_3.jpg',
+          cover: require('@/assets/images/人类简史.png'),
           name: '人类简史',
           author: '尤瓦尔·赫拉利',
           description: '这是一部讲述人类如何从史前发展至今的精彩著作，融合了历史、科学、哲学等多个领域的知识。作者用宏大的视角，重新解读人类发展史，让人类重新认识自己。',
           rating: 4.6
-        },
-        {
-          id: 5,
-          cover: 'https://img3m0.ddimg.cn/75/9/25238590-1_w_3.jpg',
-          name: '围城',
-          author: '钱钟书',
-          description: '《围城》是钱钟书所著的长篇小说，描写了青年方鸿渐从美国留学回来后的故事。小说借婚姻生活描写出人生的荒诞，在幽默中展现出对生活的思考。',
-          rating: 4.8
         }
       ]
     }

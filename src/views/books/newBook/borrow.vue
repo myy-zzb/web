@@ -66,7 +66,7 @@
             <el-button
               size="mini"
               type="primary"
-              :disabled="scope.row.remainingCount <= 0"
+              :disabled="scope.row.available_quantity <= 0"
               class="borrow-button"
               @click="handleBorrow(scope.row)"
             >
@@ -109,7 +109,7 @@
             <p>
               <i class="el-icon-time" /> 借阅期限：
               <el-input-number
-                v-model="borrowDays"
+                v-model="borrowForm.day"
                 :min="1"
                 :max="90"
                 size="small"
@@ -147,10 +147,12 @@ export default {
         'pageSize': 5
       },
       borrowForm: {
-        'userId': this.$store.state.user.id,
-        'bookId': 1,
-        'borrowDate': Date.now() },
-      borrowDays: 30 // 默认借阅30天
+        'userName': this.$store.state.user.name,
+        'bookTitle': '',
+        'borrowDate': Date.now(),
+        'day': 30
+      }
+
     }
   },
   created() {
@@ -207,7 +209,7 @@ export default {
 
     // 确认借阅
     confirmBorrow() {
-      this.borrowForm.bookId = this.selectedBook.id
+      this.borrowForm.bookTitle = this.selectedBook.title
       // 这里添加借阅API调用
       const url = 'http://localhost:8696/librarymasts/BorrowRecordController/addBorrowRecord'
       fetch(url, {
