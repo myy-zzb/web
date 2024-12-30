@@ -78,6 +78,13 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="return_record" label="审核状态" width="100">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.return_record === 'yes' ? 'success' : 'warning'">
+              {{ scope.row.return_record === 'yes' ? '已审核' : '未审核' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="140" fixed="right">
           <template slot-scope="scope">
             <el-button
@@ -180,6 +187,11 @@
                 {{ getStatusText(currentDetail.status) }}
               </el-tag>
               <span v-else>-</span>
+            </el-form-item>
+            <el-form-item label="审核状态">
+              <el-tag :type="currentDetail.return_record === 'yes' ? 'success' : 'warning'" effect="dark">
+                {{ currentDetail.return_record === 'yes' ? '已审核' : '未审核' }}
+              </el-tag>
             </el-form-item>
             <el-form-item label="备注" class="remark-item">
               <span style="font-size: 14px; color: #303133">{{ currentDetail.remark || '-' }}</span>
@@ -389,7 +401,8 @@ export default {
         '应还时间': this.formatDate(record.return_date),
         '借阅天数': record.day,
         '实际归还时间': record.actual_return_date ? this.formatDate(record.actual_return_date) : '-',
-        '状态': this.getStatusText(record.status)
+        '状态': this.getStatusText(record.status),
+        '审核状态': record.return_record === 'yes' ? '已审核' : '未审核'
       }))
 
       // 创建工作簿和工作表
@@ -404,7 +417,8 @@ export default {
         { wch: 15 }, // 应还时间
         { wch: 10 }, // 借阅天数
         { wch: 15 }, // 实际归还时间
-        { wch: 10 } // 状态
+        { wch: 10 }, // 状态
+        { wch: 10 } // 审核状态
       ]
       worksheet['!cols'] = colWidths
 
