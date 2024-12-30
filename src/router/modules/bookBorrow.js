@@ -34,6 +34,7 @@ const BookBorrowRouter = {
       path: 'search',
       component: () => import('@/views/books/bookBorrow/search'),
       name: 'searchBook',
+      hidden: true,
       meta: { title: '查询图书', roles: ['admin'] }
     }
   ]
