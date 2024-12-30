@@ -2,7 +2,8 @@
 
   <div :class="classObj" class="app-wrapper">
     <div class="page-title">
-      <span>图书管理系统</span>
+      <span>欢迎访问图书管理系统 !!!</span>
+      <span style="float: right; margin-right: 20px;">当前用户：{{ this.$store.state.user.name }}</span>
     </div>
 
     <div v-if="device === 'mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside" />

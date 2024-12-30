@@ -76,10 +76,11 @@
             <span>最近借阅记录</span>
           </div>
           <el-table :data="recentBorrows" style="width: 100%">
-            <el-table-column prop="bookName" label="书名" width="180" />
-            <el-table-column prop="borrower" label="借阅人" width="120" />
-            <el-table-column prop="borrowTime" label="借阅时间" width="180" />
-            <el-table-column prop="returnTime" label="应还时间" width="180" />
+            <el-table-column prop="book_title" label="书名" width="180" />
+            <el-table-column prop="user_name" label="借阅人" width="120" />
+            <el-table-column prop="borrow_date" label="借阅时间" width="180" />
+            <el-table-column prop="day" label="借阅期限（天）" width="180" />
+            <el-table-column prop="ying_return_date" label="应还时间" width="180" />
             <el-table-column prop="status" label="状态">
               <template slot-scope="scope">
                 <el-tag :type="scope.row.status === '已归还' ? 'success' : 'warning'">
@@ -156,16 +157,7 @@ export default {
       borrowUsers: 150,
       todayBorrow: 25,
       pendingReturn: 85,
-      recentBorrows: [
-        {
-          bookName: '深入理解计算机系统',
-          borrower: '张三',
-          borrowTime: '2024-03-15',
-          returnTime: '2024-04-15',
-          status: '借阅中'
-        }
-        // 更多数据...
-      ],
+      recentBorrows: [],
       recommendBook: {
         cover: 'https://example.com/book-cover.jpg', // 替换为实际的图片地址
         name: '人类简史',
@@ -207,6 +199,53 @@ export default {
           rating: 4.6
         }
       ]
+    }
+  },
+  created() {
+    this.getRecentBorrows()
+  },
+  methods: {
+    getRecentBorrows() {
+      const url = 'http://localhost:8696/librarymasts/BorrowRecordController/findRecordById'
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          'keyWords': this.$store.state.user.name,
+          'pageNum': 1,
+          'pageSize': 10
+        })
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('获取数据失败')
+          }
+          return response.json()
+        })
+        .then(data => {
+          if (data.data.pageInfo.pageData.length > 0) {
+            this.recentBorrows.push(data.data.pageInfo.pageData[0])
+            if (this.recentBorrows[0].status === 'returned') {
+              this.recentBorrows[0].status = '已归还'
+            } else {
+              this.recentBorrows[0].status = '借阅中'
+            }
+
+            this.recentBorrows[0].ying_return_date = '0'
+            // 计算应还日期
+            const borrowDate = new Date(this.recentBorrows[0].borrow_date)
+            const returnDate = new Date(borrowDate)
+            returnDate.setDate(returnDate.getDate() + this.recentBorrows[0].day)
+            // 格式化日期为 YYYY-MM-DD 格式
+            const year = returnDate.getFullYear()
+            const month = String(returnDate.getMonth() + 1).padStart(2, '0')
+            const day = String(returnDate.getDate()).padStart(2, '0')
+            this.recentBorrows[0].ying_return_date = `${year}-${month}-${day}`
+            console.log(this.recentBorrows[0])
+          }
+        })
     }
   }
 }
