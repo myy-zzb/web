@@ -7,7 +7,7 @@ const NewbookRouter = {
   name: 'Newbook',
   meta: {
     title: '新书上架',
-    icon: 'book'
+    icon: 'list'
   },
   children: [
     // {

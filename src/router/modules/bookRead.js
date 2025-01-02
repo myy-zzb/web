@@ -7,20 +7,20 @@ const BookReadRouter = {
   name: 'bookRead',
   meta: {
     title: '电子书阅读',
-    icon: 'book'
+    icon: 'form'
   },
   children: [
     {
       path: 'list',
       component: () => import('@/views/books/bookRead/list'),
       name: 'readBookList',
-      meta: { title: '电子书列表' }
+      meta: { title: '电子书列表', roles: ['editor'] }
     },
     {
       path: '/bookRead/read:id',
       component: () => import('@/views/books/bookRead/read'),
       name: 'BookRead',
-      meta: { title: '阅读电子书' }
+      meta: { title: '阅读电子书', roles: ['editor'] }
     }
   ]
 }

@@ -7,7 +7,7 @@ const BorrowRecordRouter = {
   name: 'borrowRecord',
   meta: {
     title: '借阅记录',
-    icon: 'book'
+    icon: 'people '
   },
   children: [
     // {

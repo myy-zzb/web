@@ -7,7 +7,7 @@ const NowBorrowRouter = {
   name: 'nowBorrow',
   meta: {
     title: '当前借阅',
-    icon: 'book'
+    icon: 'documentation'
   },
   children: [
     {

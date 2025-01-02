@@ -167,11 +167,11 @@ export default {
       },
       rankType: 'week',
       borrowRanks: [
-        { name: '深入理解计算机系统', count: 156 },
-        { name: '算法导论', count: 142 },
-        { name: '设计模式', count: 98 },
-        { name: 'JavaScript高级程序设计', count: 87 },
-        { name: '数据结构与算法分析', count: 76 }
+        { name: '三体', count: 15 },
+        { name: '百年孤独', count: 14 },
+        { name: '活着', count: 10 },
+        { name: '围城', count: 6 },
+        { name: '边城', count: 5 }
       ],
       recommendBooks: [
         {

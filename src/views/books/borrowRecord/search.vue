@@ -281,6 +281,7 @@ export default {
     },
     getRecords() {
       this.loading = true
+      if (this.$store.state.user.name === 'Super Admin') this.searchForm.keyWords = ''
       const url = 'http://localhost:8696/librarymasts/BorrowRecordController/findRecordById'
       fetch(url, {
         method: 'POST',

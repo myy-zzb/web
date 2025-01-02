@@ -7,7 +7,7 @@ const BookBorrowRouter = {
   name: 'bookBorrow',
   meta: {
     title: '图书借阅',
-    icon: 'book',
+    icon: 'education',
     roles: ['admin']
   },
   children: [
@@ -21,7 +21,7 @@ const BookBorrowRouter = {
       path: 'borrow',
       component: () => import('@/views/books/bookBorrow/borrow'),
       name: 'borrowBook',
-      meta: { title: '借阅图书', roles: ['admin'] }
+      meta: { title: '编辑图书', roles: ['admin'] }
     },
     {
       path: 'edit:title',
@@ -29,13 +29,6 @@ const BookBorrowRouter = {
       name: 'editBook',
       hidden: true,
       meta: { title: '编辑图书', roles: ['admin'] }
-    },
-    {
-      path: 'search',
-      component: () => import('@/views/books/bookBorrow/search'),
-      name: 'searchBook',
-      hidden: true,
-      meta: { title: '查询图书', roles: ['admin'] }
     }
   ]
 }
