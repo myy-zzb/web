@@ -19,6 +19,10 @@
           <el-tag v-else>普通用户</el-tag>
         </el-form-item>
 
+        <el-form-item v-if="!userInfo.roles.includes('admin')" label="学号">
+          <el-input v-model="userInfo.studentId" />
+        </el-form-item>
+
         <el-form-item label="邮箱">
           <el-input v-model="userInfo.email" />
         </el-form-item>
@@ -48,7 +52,8 @@ export default {
         name: '',
         roles: [],
         email: '',
-        phone: ''
+        phone: '',
+        studentId: ''
       }
     }
   },
@@ -69,7 +74,7 @@ export default {
       this.userInfo.roles = this.roles
 
       // TODO: 从后端获取详细信息
-      // 这里需要调用后端API获取email和phone信息
+      // 这里需要调用后端API获取email、phone和studentId信息
     },
     updateInfo() {
       this.$message({

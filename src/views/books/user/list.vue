@@ -30,6 +30,7 @@
         <el-table-column type="index" label="序号" width="80" align="center" />
         <el-table-column prop="username" label="用户名" min-width="120" />
         <el-table-column prop="name" label="姓名" min-width="120" />
+        <el-table-column prop="studentId" label="学号" min-width="120" />
         <el-table-column prop="role" label="角色" width="120">
           <template slot-scope="scope">
             <el-tag :type="scope.row.role === 'admin' ? 'danger' : 'primary'">
@@ -81,17 +82,10 @@ export default {
       // 模拟用户数据
       userList: [
         {
-          id: 1,
-          username: 'admin',
-          name: '超级管理员',
-          role: 'admin',
-          email: 'admin@example.com',
-          createTime: '2023-01-01'
-        },
-        {
           id: 2,
           username: 'student',
           name: '张三',
+          studentId: '2020001',
           role: 'student',
           email: 'student@example.com',
           createTime: '2023-01-02'
@@ -100,6 +94,7 @@ export default {
           id: 4,
           username: 'student1',
           name: '王五',
+          studentId: '2020002',
           role: 'student',
           email: 'student1@example.com',
           createTime: '2023-01-04'
