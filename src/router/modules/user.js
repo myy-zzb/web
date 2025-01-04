@@ -7,7 +7,8 @@ const UserRouter = {
   name: 'user',
   meta: {
     title: '用户管理',
-    icon: 'user'
+    icon: 'user',
+    roles: ['admin']
   },
   children: [
     {

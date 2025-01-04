@@ -2,7 +2,7 @@
   <div class="add-book-container">
     <el-card class="form-card">
       <div slot="header" class="card-header">
-        <span>新增图书</span>
+        <span>编辑图书</span>
       </div>
 
       <el-form

@@ -32,9 +32,13 @@
         </div>
         <el-dropdown-menu slot="dropdown">
 
+          <el-dropdown-item @click.native="userInfo">
+            <span style="display: block">个人信息</span>
+          </el-dropdown-item>
           <el-dropdown-item @click.native="logout">
             <span style="display: block">Log Out</span>
           </el-dropdown-item>
+
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -69,6 +73,9 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    },
+    userInfo() {
+      this.$router.push('/user/info')
     }
   }
 }
